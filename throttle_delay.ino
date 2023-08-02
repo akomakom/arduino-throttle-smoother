@@ -2,33 +2,25 @@
 #define PIN_OUT 10
 #define PRINT_DELAY 100
 
-// How often and by how much to increase throttle value when going up
-#define INCREASE_STEP 1
-#define INCREASE_DELAY 10
-#define DECREASE_STEP 2
-#define DECREASE_DELAY 2
+// fine tune the throttle range to eliminate deadband
+#define THROTTLE_MAP_IN_MIN 180
+#define THROTTLE_MAP_IN_MAX 850
+#define THROTTLE_MAP_OUT_MIN 390
+#define THROTTLE_MAP_OUT_MAX 800
 
-/** JITTER MITIGATION **/
-// variations in throttle below this amount are adjusted more slowly
-#define JITTER_THRESHOLD 100
-// adjustment rate
-#define JITTER_STEP 1
-#define JITTER_DELAY 100
-// jitter logic is only effective between these values
-// at low (starting) throttle, jitter can result in long creep times
-#define JITTER_MIN 450
-#define JITTER_MAX 900
+// how quickly to adjust output, larger values are slower
+#define INCREASE_ERROR_FACTOR 1200
+#define DECREASE_ERROR_FACTOR 300
 
-// TODO
-#define THROTTLE_MIN 187
-#define THROTTLE_MAX 865
+#define TICK_LENGTH_MS 1
+
 
 int throttleValue = 0; //input value (0-1024)
-int outputValue = 0; // 0-1024, later mapped to 0-255
+int delta = 0;
+float adjustmentAmount = 0;
+
+float outputValue = 0; // 0-1024, later mapped to 0-255
 unsigned long lastPrint = 0;
-unsigned long lastIncrease = 0;
-unsigned long lastDecrease = 0;
-unsigned long lastJitterAdjust = 0;
 
 
 
@@ -39,42 +31,22 @@ void setup() {
   outputValue = analogRead(PIN_IN); // initial value
 }
 
-void adjust(
-    int inValue, 
-    int * outputValue, 
-    unsigned long *lastAdjustIncrease, 
-    unsigned long *lastAdjustDecrease, 
-    int increaseStep, 
-    int decreaseStep, 
-    int increaseDelay, 
-    int decreaseDelay) {
-
-  int delta = inValue - *outputValue;
-  int step = (delta > 0) ? increaseStep : decreaseStep;
-  int del = (delta > 0) ? increaseDelay : decreaseDelay;
-  unsigned long *lastAdjust = (delta > 0) ? lastAdjustIncrease : lastAdjustDecrease;
-  
-  if ((*lastAdjust + del) < millis() && delta != 0) {
-    *lastAdjust = millis();
-    *outputValue += (delta > 0) ? min(step, delta) : max(-step, delta);
-  }
-
-}
-
 void loop() {
   throttleValue = analogRead(PIN_IN);
-
-  int delta = throttleValue - outputValue;
-  if (abs(delta) < JITTER_THRESHOLD && throttleValue > JITTER_MIN && throttleValue < JITTER_MAX) {
-    adjust(throttleValue, &outputValue, &lastJitterAdjust, &lastJitterAdjust, JITTER_STEP, JITTER_STEP, JITTER_DELAY, JITTER_DELAY);
-  } else {
-    adjust(throttleValue, &outputValue, &lastIncrease, &lastDecrease, INCREASE_STEP, DECREASE_STEP, INCREASE_DELAY, DECREASE_DELAY);
-  }
-  
+  delta = throttleValue - outputValue; // error
+  adjustmentAmount = (float)delta / (float)(delta > 0 ? INCREASE_ERROR_FACTOR : DECREASE_ERROR_FACTOR);
+  outputValue += adjustmentAmount;
     
-  analogWrite(PIN_OUT, map(outputValue, 180, 850, 390, 800) / 4);
-//  analogWrite(PIN_OUT, outputValue / 4);
-//  analogWrite(PIN_OUT, 127);
+  analogWrite(
+    PIN_OUT, 
+    map(
+      outputValue, 
+      THROTTLE_MAP_IN_MIN, 
+      THROTTLE_MAP_IN_MAX, 
+      THROTTLE_MAP_OUT_MIN, 
+      THROTTLE_MAP_OUT_MAX
+    ) / 4
+  );
 
   if ((lastPrint + PRINT_DELAY) < millis()) {
     lastPrint = millis();
@@ -82,8 +54,11 @@ void loop() {
     Serial.print(throttleValue);
     Serial.print(" Output: ");
     Serial.print(outputValue);
+    Serial.print(" Adj: ");
+    Serial.print(adjustmentAmount);
     Serial.println("");
   }
 
+  delay(TICK_LENGTH_MS);
   
 }
