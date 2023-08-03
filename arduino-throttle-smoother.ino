@@ -97,7 +97,7 @@ void loop() {
 
     analogWrite(
             PIN_OUT,
-            mapped / 4
+            mapped / 4 // PWM is 0-254 while our values are 0-1023
     );
 
     if ((lastPrint + PRINT_DELAY) < millis()) {
