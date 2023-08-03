@@ -18,7 +18,7 @@ Wiring is very simple.  Smoothing capacitor can be any value that eliminates
 jumping of motor speed at steady throttle.  I believe that I used a 100uF for my setup.
 
 ![arduino-throttle.png](arduino-throttle.png)
-Note that I added an power supply capacitor as well, but I don't think it was necessary.
+Note that I added a power supply capacitor as well, but I don't think it was necessary.
 
 ### Tuning
 
