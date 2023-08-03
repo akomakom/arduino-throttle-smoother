@@ -6,9 +6,9 @@ Arduino Throttle Correction for 3-wire thottles
 This project is suitable for electric vehicles with a non-programmable controller. 
 The arduino is inserted between a 3-wire throttle and the controller.
 
-* Provides smoothing for jittery throttle response by slowing down changes in output, slightly
-* Reduces deadband by mapping input to output values as per configuration
-* Optionally provides an adjustable speed limit
+* Provides smoothing for aggressive throttle response by slowing down changes in output (wheelie/jerk control)
+* Reduces throttle dead-band by mapping input to output values as per configuration
+* Optionally provides an adjustable speed limit (hardcoded or potentiometer/switch)
 
 ### Wiring and Implementation
 

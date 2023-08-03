@@ -41,7 +41,8 @@
 // this adjusts throttle output speed limit
 // value is applied to the throttle input range (THROTTLE_MAP_IN_*)
 // Adjust to "about as slow as is practical" to "max speed" - change the added number to your needs
-// you can also subtract from max to disallow full speed
+// you can also subtract from max to disallow full speed (hardcoded speed limit)
+// like this:  #define LIMIT_MAP_OUT_MAX THROTTLE_MAP_IN_MAX - 300
 #define LIMIT_MAP_OUT_MIN THROTTLE_MAP_IN_MIN + 100
 #define LIMIT_MAP_OUT_MAX THROTTLE_MAP_IN_MAX
 
