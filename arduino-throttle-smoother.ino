@@ -65,58 +65,58 @@ unsigned long lastPrint = 0;
 
 
 void setup() {
-  Serial.begin(115200);
-  pinMode(PIN_IN, INPUT);
-  pinMode(PIN_LIMIT, INPUT);
-  pinMode(PIN_OUT, OUTPUT);
-  outputValue = analogRead(PIN_IN); // initial value
+    Serial.begin(115200);
+    pinMode(PIN_IN, INPUT);
+    pinMode(PIN_LIMIT, INPUT);
+    pinMode(PIN_OUT, OUTPUT);
+    outputValue = analogRead(PIN_IN); // initial value
 }
 
 void loop() {
-  throttleValue = analogRead(PIN_IN);
-  delta = throttleValue - outputValue; // error
-  adjustmentAmount = (float)delta / (float)(delta > 0 ? INCREASE_ERROR_FACTOR : DECREASE_ERROR_FACTOR);
+    throttleValue = analogRead(PIN_IN);
+    delta = throttleValue - outputValue; // error
+    adjustmentAmount = (float) delta / (float) (delta > 0 ? INCREASE_ERROR_FACTOR : DECREASE_ERROR_FACTOR);
 
 #ifdef LIMIT_ENABLE
-  limitValue = analogRead(PIN_LIMIT);
-  // Apply speed limit - allow increase only if below limit
-  if (outputValue > map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX)) {
-      adjustmentAmount = min(adjustmentAmount, 0); // always allow decrease
-  }
+    limitValue = analogRead(PIN_LIMIT);
+    // Apply speed limit - allow increase only if below limit
+    if (outputValue > map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX)) {
+        adjustmentAmount = min(adjustmentAmount, 0); // always allow decrease
+    }
 #endif
-  outputValue += adjustmentAmount;
+    outputValue += adjustmentAmount;
 
-  // throttle to output value map
-  mapped = map(
-      outputValue,
-      THROTTLE_MAP_IN_MIN,
-      THROTTLE_MAP_IN_MAX,
-      THROTTLE_MAP_OUT_MIN,
-      THROTTLE_MAP_OUT_MAX
+    // throttle to output value map
+    mapped = map(
+            outputValue,
+            THROTTLE_MAP_IN_MIN,
+            THROTTLE_MAP_IN_MAX,
+            THROTTLE_MAP_OUT_MIN,
+            THROTTLE_MAP_OUT_MAX
     );
 
-  analogWrite(
-    PIN_OUT,
-    mapped / 4
-  );
+    analogWrite(
+            PIN_OUT,
+            mapped / 4
+    );
 
-  if ((lastPrint + PRINT_DELAY) < millis()) {
-    lastPrint = millis();
-    Serial.print("Input: ");
-    Serial.print(throttleValue);
-    Serial.print(" Output: ");
-    Serial.print(outputValue);
-    Serial.print(" Mapped: ");
-    Serial.print(mapped);
-    Serial.print(" +/-: ");
-    Serial.print(adjustmentAmount);
-    Serial.print(" Lim: ");
-    Serial.print(limitValue);
-    Serial.print(" Lim Map: " );
-    Serial.print(map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX));
-    Serial.println("");
-  }
+    if ((lastPrint + PRINT_DELAY) < millis()) {
+        lastPrint = millis();
+        Serial.print("Input: ");
+        Serial.print(throttleValue);
+        Serial.print(" Output: ");
+        Serial.print(outputValue);
+        Serial.print(" Mapped: ");
+        Serial.print(mapped);
+        Serial.print(" +/-: ");
+        Serial.print(adjustmentAmount);
+        Serial.print(" Lim: ");
+        Serial.print(limitValue);
+        Serial.print(" Lim Map: ");
+        Serial.print(map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX));
+        Serial.println("");
+    }
 
-  delay(TICK_LENGTH_MS);
+    delay(TICK_LENGTH_MS);
 
 }
