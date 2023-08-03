@@ -80,23 +80,23 @@ void loop() {
 #ifdef LIMIT_ENABLE
   limitValue = analogRead(PIN_LIMIT);
   // Apply speed limit - allow increase only if below limit
-  if (adjustmentAmount < 0 || 
-      outputValue < map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX)) {
-    outputValue += adjustmentAmount;
+  if (outputValue > map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX)) {
+      adjustmentAmount = min(adjustmentAmount, 0); // always allow decrease
   }
 #endif
+  outputValue += adjustmentAmount;
 
   // throttle to output value map
   mapped = map(
-      outputValue, 
-      THROTTLE_MAP_IN_MIN, 
-      THROTTLE_MAP_IN_MAX, 
-      THROTTLE_MAP_OUT_MIN, 
+      outputValue,
+      THROTTLE_MAP_IN_MIN,
+      THROTTLE_MAP_IN_MAX,
+      THROTTLE_MAP_OUT_MIN,
       THROTTLE_MAP_OUT_MAX
     );
 
   analogWrite(
-    PIN_OUT, 
+    PIN_OUT,
     mapped / 4
   );
 
@@ -118,5 +118,5 @@ void loop() {
   }
 
   delay(TICK_LENGTH_MS);
-  
+
 }
