@@ -16,6 +16,11 @@
 // ms delay between debugging prints
 #define PRINT_DELAY 100
 
+/**
+ * All the ranges below can be determined by watching the serial console and twisting the throttle
+ * Note that they will be slightly wrong if the controller supplies less than 5v to throttle.
+ */
+
 /* fine tune the throttle range to eliminate deadband */
 // Normal range of throttle
 #define THROTTLE_MAP_IN_MIN 180
@@ -25,19 +30,27 @@
 #define THROTTLE_MAP_OUT_MIN 390
 #define THROTTLE_MAP_OUT_MAX 800
 
+/* Speed Limit */
+// comment out this line to disable speed limit feature
+#define LIMIT_ENABLE
 /* fine tune the speed limit potentiometer range */
 // input from potentiometer - possible values on analogRead, adjust to your pot's range
+// (min from pot to max from pot).   Defaults are appropriate for a 1K ohm pot.
 #define LIMIT_MAP_IN_MIN 0
 #define LIMIT_MAP_IN_MAX 1023
-// this adjusts throttle output speed limit (min on pot to max on pot)
-// "about as slow as it can move" to max speed - change the number to your needs
+// this adjusts throttle output speed limit
+// value is applied to the throttle input range (THROTTLE_MAP_IN_*)
+// Adjust to "about as slow as is practical" to "max speed" - change the added number to your needs
+// you can also subtract from max to disallow full speed
 #define LIMIT_MAP_OUT_MIN THROTTLE_MAP_IN_MIN + 100
 #define LIMIT_MAP_OUT_MAX THROTTLE_MAP_IN_MAX
 
+/* Jerkiness Mitigation */
 // how quickly to adjust output, larger values are slower
 #define INCREASE_ERROR_FACTOR 1400
 #define DECREASE_ERROR_FACTOR 100
 
+// Basically delay between loops:
 #define TICK_LENGTH_MS 1
 
 // operational variables
@@ -61,15 +74,17 @@ void setup() {
 
 void loop() {
   throttleValue = analogRead(PIN_IN);
-  limitValue = analogRead(PIN_LIMIT);
   delta = throttleValue - outputValue; // error
   adjustmentAmount = (float)delta / (float)(delta > 0 ? INCREASE_ERROR_FACTOR : DECREASE_ERROR_FACTOR);
 
+#ifdef LIMIT_ENABLE
+  limitValue = analogRead(PIN_LIMIT);
   // Apply speed limit - allow increase only if below limit
   if (adjustmentAmount < 0 || 
       outputValue < map(limitValue, LIMIT_MAP_IN_MIN, LIMIT_MAP_IN_MAX, LIMIT_MAP_OUT_MIN, LIMIT_MAP_OUT_MAX)) {
     outputValue += adjustmentAmount;
   }
+#endif
 
   // throttle to output value map
   mapped = map(
