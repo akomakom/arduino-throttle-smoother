@@ -28,3 +28,11 @@ If you don't want speed limiting, comment out `#LIMIT_ENABLE`
 
 **Note** that when plugged into USB, Arduino is running at 5V, but when powered by the motor controller,
 it is most likely running on 4.0V-4.5V.  This changes the numbers and behavior a little when you unplug USB.
+
+### Story
+
+This implementation came into being after I tried [a variety of circuits](https://electricbike.com/forum/forum/kits/golden-motor-magic-pie/70584-guide-to-hall-sensor-throttle-operation-testing-and-modification/) to achieve my goals.
+I was setting up a mini-ATV (110cc size) as an electric garden cart tractor.
+It is powered by a Vevor 2KW motor and their bundled controller and 1:20 gearing.  
+With that amount of torque, the ATV was popping wheelies with the slightest twist of the throttle. 
+I also wanted a speed limit for delicate maneuvering in the garden.
