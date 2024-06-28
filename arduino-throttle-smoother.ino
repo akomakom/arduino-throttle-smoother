@@ -35,7 +35,8 @@
 #define LIMIT_ENABLE
 /* fine tune the speed limit potentiometer range */
 // input from potentiometer - possible values on analogRead, adjust to your pot's range
-// (min from pot to max from pot).   Defaults are appropriate for a 1K ohm pot.
+// (min from pot to max from pot).   
+// Defaults are appropriate for a linear 10K ohm pot like a LA42DWQ-22
 #define LIMIT_MAP_IN_MIN 0
 #define LIMIT_MAP_IN_MAX 1023
 // this adjusts throttle output speed limit
@@ -48,8 +49,8 @@
 
 /* Jerkiness Mitigation */
 // how quickly to adjust output, larger values are slower
-#define INCREASE_ERROR_FACTOR 1400
-#define DECREASE_ERROR_FACTOR 100
+#define INCREASE_ERROR_FACTOR 170
+#define DECREASE_ERROR_FACTOR 20
 
 // Basically delay between loops:
 #define TICK_LENGTH_MS 1
@@ -101,7 +102,7 @@ void loop() {
             mapped / 4 // PWM is 0-254 while our values are 0-1023
     );
 
-    if ((lastPrint + PRINT_DELAY) < millis()) {
+    if (Serial && (lastPrint + PRINT_DELAY) < millis()) {
         lastPrint = millis();
         Serial.print("Input: ");
         Serial.print(throttleValue);
