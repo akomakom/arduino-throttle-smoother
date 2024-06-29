@@ -39,11 +39,14 @@
 // Defaults are appropriate for a linear 10K ohm pot like a LA42DWQ-22
 #define LIMIT_MAP_IN_MIN 0
 #define LIMIT_MAP_IN_MAX 1023
-// this adjusts throttle output speed limit
+
+// this adjusts throttle output speed limit range.
 // value is applied to the throttle input range (THROTTLE_MAP_IN_*)
 // Adjust to "about as slow as is practical" to "max speed" - change the added number to your needs
 // you can also subtract from max to disallow full speed (hardcoded speed limit)
 // like this:  #define LIMIT_MAP_OUT_MAX THROTTLE_MAP_IN_MAX - 300
+// For example, if your throttle range is 200-800, then an output limit range of 300-800 is reasonable.
+// This means that when your limit knob is all the way down, throttle range will be restricted to 200-300.
 #define LIMIT_MAP_OUT_MIN THROTTLE_MAP_IN_MIN + 100
 #define LIMIT_MAP_OUT_MAX THROTTLE_MAP_IN_MAX
 
